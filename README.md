@@ -1,4 +1,4 @@
-# QuickLauncher
+# Quick Launcher
 
 JSONファイルを元に作成される、Windows専用のランチャーです。
 タスクトレイに滞在し、右クリックでメニューが出ます。
@@ -8,6 +8,9 @@ EXEファイルを登録し、タスクトレイからアプリケーション�
 
 Windows11になると、タスクバーに好きなフォルダを登録できなり困ったので作成。
 WIndows10以降にプリインストールされてるライブラリのみで作成されてるので、追加ライブラリは不要です。
+
+<img src="./docs/tasktray_sampleA.png">
+<img src="./docs/tasktray_sampleB.png">
 
 
 # コマンドラインオプション
