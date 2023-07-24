@@ -39,7 +39,7 @@ QuickLauncher.exe -json ".\samples\sample.json" -icon ".\samples\sample.ico"
 
 ## -icon
 
-タスクトレイで表示するアイコンが変更可します。
+タスクトレイで表示するアイコンが変更されます。
 複数起動した際に、見た目で違いが分かるようになります。
 
 
@@ -89,12 +89,17 @@ JSONファイルの不正な記述を指摘してくれます。
         "softwares": [
             {
                 "name": "Maya 2024",
-                "path": "C:\\Program Files\\Autodesk\\Maya2024\\bin\\maya.exe",
-                "icon": "C:\\Program Files\\Autodesk\\Maya2024\\bin\\maya.exe",
+                "path": "%ProgramFiles%\\Autodesk\\Maya2024\\bin\\maya.exe",
+                "icon": "%ProgramFiles%\\Autodesk\\Maya2024\\bin\\maya.exe",
                 "arguments": "",
                 "environments": {
+                    "AW_JPEG_Q_FACTOR": 90,
                     "MAYA_UI_LANGUAGE": "en_US",
-                    "AW_JPEG_Q_FACTOR": 90
+                    "MAYA_MODULE_PATH": [
+                        "X:\\inhouse\\packageA",
+                        "X:\\inhouse\\packageB",
+                        "Y:\\test\\package"
+                    ]  // X:\inhouse\packageA;X:\inhouse\packageB;Y:\test\package
                 }
             }
         ]
@@ -123,8 +128,25 @@ EXEに埋め込まれてるアイコンを使いたい場合は、EXEのパス�
 ### environments
 
 環境変数を追加して起動します。辞書型で、左が名前、右が値になります。
-環境変数が複雑になる場合は、`path`にBATファイルを指定して実行してください。
+辞書型なので、同じ名前(キー)の指定は出来ません。また上から順に処理される保証はありません。
+環境変数の設定が複雑になる場合は、`path`にBATファイルを指定して運用してください。
 
+値を配列にすると、文字列をセミコロン(`;`)で結合します。
+`PATH`など長い文字列を入れる場合に利用してください。
+
+```json
+"MAYA_MODULE_PATH": "X:\\inhouse\\packageA;X:\\inhouse\\packageB;Y:\\test\\package"
+```
+
+上と、下は、同じ意味になります。
+
+```json
+"MAYA_MODULE_PATH": [
+    "X:\\inhouse\\packageA",
+    "X:\\inhouse\\packageB",
+    "Y:\\test\\package"
+]
+```
 
 ## セパレーター
 
@@ -160,8 +182,8 @@ EXEに埋め込まれてるアイコンを使いたい場合は、EXEのパス�
         "name": "ブックマーク",
         "softwares": [
             {
-                "name": "Program Files",
-                "path": "C:\\Program Files"
+                "name": "インストールディレクトリ",
+                "path": "%ProgramFiles%"
             }
         ]
     }
@@ -169,4 +191,4 @@ EXEに埋め込まれてるアイコンを使いたい場合は、EXEのパス�
 ```
 
 名前とパス以外のオプションは無効になります。
-アイコンは変更可能ですが、指定がなければシステムのフォルダアイコンが使われます。
+`icon`でアイコンを変更出来ますが、指定がなければシステムのフォルダアイコンが使われます。

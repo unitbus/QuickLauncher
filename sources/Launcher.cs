@@ -19,12 +19,12 @@ namespace Launcher
     }
     public class Software
     {
+        public bool Separator { get; set; }
         public string Name { get; set; }
         public string Path { get; set; }
         public string Icon { get; set; }
         public string Arguments { get; set; }
-        public Dictionary<string, string> Environments { get; set; }
-        public bool Separator { get; set; }
+        public Dictionary<string, object> Environments { get; set; }
     }
     public class Program
     {
@@ -176,7 +176,7 @@ namespace Launcher
             }
         }
 
-        private static void LaunchSoftware(string path, string arguments, Dictionary<string, string> environments)
+        private static void LaunchSoftware(string path, string arguments, Dictionary<string, object> environments)
         {
             try
             {
@@ -184,7 +184,22 @@ namespace Launcher
                 {
                     foreach (var environment in environments)
                     {
-                        Environment.SetEnvironmentVariable(environment.Key, environment.Value);
+                        string key = environment.Key;
+                        object value = environment.Value;
+
+                        if (value is string)
+                        {
+                            string stringValue = (string)value;
+                            string expandedValue = Environment.ExpandEnvironmentVariables(stringValue);
+                            Environment.SetEnvironmentVariable(key, expandedValue);
+                        }
+                        else if (value is System.Collections.ArrayList)
+                        {
+                            System.Collections.ArrayList arrayValue = (System.Collections.ArrayList)value;
+                            string joinedValue = string.Join(";", arrayValue.ToArray());
+                            string expandedValue = Environment.ExpandEnvironmentVariables(joinedValue);
+                            Environment.SetEnvironmentVariable(key, expandedValue);
+                        }
                     }
                 }
 

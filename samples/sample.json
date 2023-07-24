@@ -4,23 +4,10 @@
         "softwares": [
             {
                 "name": "Notepad++",
-                "path": "D:\\tools\\Notepad++\\notepad++.exe",
-                "icon": "D:\\tools\\Notepad++\\notepad++.exe",
+                "path": "%SystemRoot%\\Notepad++\\notepad++.exe",
+                "icon": "%SystemRoot%\\Notepad++\\notepad++.exe",
                 "arguments": "",
                 "environments": {}
-            },
-            {
-                "separator": true
-            },
-            {
-                "name": "python v3.9.7",
-                "path": "C:\\software\\python\\python_v3.9.7\\python.exe",
-                "icon": "C:\\software\\python\\python_v3.9.7\\python.exe",
-                "arguments": "",
-                "environments": {
-                    "TEST_A": "AAAAAAA",
-                    "TEST_B": "BBBBBBB"
-                }
             }
         ]
     },
@@ -29,8 +16,8 @@
         "softwares": [
             {
                 "name": "Maya 2024 日本語",
-                "path": "C:\\Program Files\\Autodesk\\Maya2024\\bin\\maya.exe",
-                "icon": "C:\\Program Files\\Autodesk\\Maya2024\\bin\\maya.exe",
+                "path": "%ProgramFiles%\\Autodesk\\Maya2024\\bin\\maya.exe",
+                "icon": "%ProgramFiles%\\Autodesk\\Maya2024\\bin\\maya.exe",
                 "arguments": "",
                 "environments": {
                     "MAYA_UI_LANGUAGE": "ja_JP"
@@ -38,12 +25,12 @@
             },
             {
                 "name": "Maya 2024",
-                "path": "C:\\Program Files\\Autodesk\\Maya2024\\bin\\maya.exe",
-                "icon": "C:\\Program Files\\Autodesk\\Maya2024\\bin\\maya.exe",
+                "path": "%ProgramFiles%\\Autodesk\\Maya2024\\bin\\maya.exe",
+                "icon": "%ProgramFiles%\\Autodesk\\Maya2024\\bin\\maya.exe",
                 "arguments": "",
                 "environments": {
-                    "MAYA_UI_LANGUAGE": "en_US",
-                    "AW_JPEG_Q_FACTOR": 90
+                    "AW_JPEG_Q_FACTOR": 90,
+                    "MAYA_UI_LANGUAGE": "en_US"
                 }
             },
             {
@@ -51,8 +38,8 @@
             },
             {
                 "name": "Houdini 19.5.534",
-                "path": "C:\\Program Files\\Side Effects Software\\Houdini\\bin\\houdini.exe",
-                "icon": "C:\\Program Files\\Side Effects Software\\Houdini\\bin\\houdini.exe",
+                "path": "%ProgramFiles%\\Side Effects Software\\Houdini\\bin\\houdini.exe",
+                "icon": "%ProgramFiles%\\Side Effects Software\\Houdini\\bin\\houdini.exe",
                 "arguments": "",
                 "environments": {}
             }
@@ -63,11 +50,16 @@
         "softwares": [
             {
                 "name": "python v3.9.7",
-                "path": "C:\\Program Files\\Python39\\python.exe",
-                "icon": "C:\\Program Files\\Python39\\python.exe",
+                "path": "C:software\\python\\python_v2.7.15\\python.exe",
+                "icon": "C:software\\python\\python_v2.7.15\\python.exe",
                 "arguments": "",
                 "environments": {
-                    "PYTHONDONTWRITEBYTECODE": 1
+                    "PYTHONDONTWRITEBYTECODE": 1,
+                    "TEST_STR": "valueA",
+                    "TEST_LIST": [
+                        "valueB",
+                        "valueC"
+                    ]
                 }
             }
         ]
