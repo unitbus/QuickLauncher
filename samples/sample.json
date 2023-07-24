@@ -4,8 +4,8 @@
         "softwares": [
             {
                 "name": "Notepad++",
-                "path": "%SystemRoot%\\Notepad++\\notepad++.exe",
-                "icon": "%SystemRoot%\\Notepad++\\notepad++.exe",
+                "path": "C:\\tools\\Notepad++\\notepad++.exe",
+                "icon": "C:\\tools\\Notepad++\\notepad++.exe",
                 "arguments": "",
                 "environments": {}
             }
@@ -50,8 +50,8 @@
         "softwares": [
             {
                 "name": "python v3.9.7",
-                "path": "C:software\\python\\python_v2.7.15\\python.exe",
-                "icon": "C:software\\python\\python_v2.7.15\\python.exe",
+                "path": "C:\\software\\python\\python_v2.7.15\\python.exe",
+                "icon": "C:\\software\\python\\python_v2.7.15\\python.exe",
                 "arguments": "",
                 "environments": {
                     "PYTHONDONTWRITEBYTECODE": 1,
