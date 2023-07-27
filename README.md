@@ -23,6 +23,23 @@ Windows10以降にプリインストールされてるライブラリのみで�
 - 複数起動し、別の設定ファイルを指定出来る
 - ファイルサイズ小さい
 
+## URL
+
+### HomePage
+
+https://unitbus.github.io/index
+
+### QuickLauncher - GitHub
+
+https://github.com/unitbus/QuickLauncher
+
+### License
+
+https://github.com/unitbus/QuickLauncher/blob/main/LICENSE.txt
+
+Copyright (C) 2019 Co, UnitBus.
+
+
 # コマンドラインオプション
 
 ```powershell
@@ -34,7 +51,7 @@ QuickLauncher.exe -json ".\samples\sample.json" -icon ".\samples\sample.ico"
 
 ## -json
 
-設定ファイルをしていします。
+設定ファイルを指定します。
 指定がない場合は、同じディレクトリにある`QuickLauncher.json`が参照されます。
 
 ## -icon
@@ -108,6 +125,8 @@ JSONファイルの不正な記述を指摘してくれます。
 ```
 
 ### name
+
+メニューアイテムに表示する名前です。
 
 ### path
 
