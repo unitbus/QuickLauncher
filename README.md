@@ -37,7 +37,7 @@ https://github.com/unitbus/QuickLauncher
 
 https://github.com/unitbus/QuickLauncher/blob/main/LICENSE.txt
 
-Copyright (C) 2019 Co, UnitBus.
+Copyright (C) 2023 Co, UnitBus.
 
 
 # コマンドラインオプション
