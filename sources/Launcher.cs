@@ -17,6 +17,7 @@ namespace Launcher
         public string Name { get; set; }
         public List<Software> Softwares { get; set; }
     }
+    
     public class Software
     {
         public bool Separator { get; set; }
@@ -26,13 +27,13 @@ namespace Launcher
         public string Arguments { get; set; }
         public Dictionary<string, object> Environments { get; set; }
     }
+    
     public class Program
     {
         private const uint INFO_ICON = 0x000000100;
         private const uint INFO_SMALLICON = 0x000000001;
         private const uint INFO_USEFILEATTRIBUTES = 0x000000010;
         private const uint FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
-
         private static NotifyIcon notifyIcon;
         private static List<Category> launcherCategories;
         private static Icon trayIcon;
@@ -50,71 +51,12 @@ namespace Launcher
             ParseArguments(args);
             InitNotifyIcon();
             ImportConfig();
-            CreateMenuItems();
+            CreateDefaultItems();
 
             Application.Run();
         }
 
-        private static void ParseArguments(string[] args)
-        {
-            for (int i = 0; i < args.Length - 1; i++)
-            {
-                string flag = args[i];
-                string path = args[i + 1];
-
-                if (!File.Exists(path))
-                {
-                    continue;
-                }
-                else if (flag.Equals("-json", StringComparison.OrdinalIgnoreCase))
-                {
-                    jsonPath = path;
-                }
-                else if (flag.Equals("-icon", StringComparison.OrdinalIgnoreCase))
-                {
-                    trayIcon = new Icon(path);
-                }
-            }
-        }
-
-        private static void InitNotifyIcon()
-        {
-            notifyIcon = new NotifyIcon();
-            notifyIcon.Icon = trayIcon;
-            notifyIcon.Text = "Quick Launcher";
-            notifyIcon.Visible = true;
-            notifyIcon.ContextMenuStrip = new ContextMenuStrip();
-        }
-
-        private static void ImportConfig()
-        {
-            using (StreamReader reader = new StreamReader(jsonPath))
-            {
-                string jsonText = reader.ReadToEnd();
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                launcherCategories = serializer.Deserialize<List<Category>>(jsonText);
-            }
-        }
-
-        private static void CreateMenuItems()
-        {
-            foreach (var category in launcherCategories)
-            {
-                if (!string.IsNullOrEmpty(category.Name))
-                {
-                    var categoryMenuItem = new ToolStripMenuItem(category.Name);
-                    notifyIcon.ContextMenuStrip.Items.Add(categoryMenuItem);
-                    AddMenuItems(categoryMenuItem.DropDownItems, category.Softwares);
-                }
-                else
-                {
-                    AddMenuItems(notifyIcon.ContextMenuStrip.Items, category.Softwares);
-                }
-            }
-
-            notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            notifyIcon.ContextMenuStrip.Items.Add("Exit", null, ExitMenuItem_Click);
-        }
+        // functions.
 
         private static void AddMenuItems(ToolStripItemCollection collection, List<Software> softwares)
         {
@@ -134,7 +76,7 @@ namespace Launcher
                     if (Directory.Exists(expandedPath))
                     {
                         menuItem.Click += (s, args) => OpenFolder(expandedPath);
-                        
+
                         Icon folderIcon = GetFolderIcon(expandedPath);
                         menuItem.Image = folderIcon.ToBitmap();
                     }
@@ -156,6 +98,55 @@ namespace Launcher
                         }
                     }
                     collection.Add(menuItem);
+                }
+            }
+        }
+
+        private static string GetConfigPath()
+        {
+            string exePath = Assembly.GetExecutingAssembly().Location;
+            string exeDir = Path.GetDirectoryName(exePath);
+            string filePath = Path.Combine(exeDir, "QuickLauncher.json");
+            return filePath;
+        }
+
+        private static void InitNotifyIcon()
+        {
+            notifyIcon = new NotifyIcon();
+            notifyIcon.Icon = trayIcon;
+            notifyIcon.Text = "Quick Launcher";
+            notifyIcon.Visible = true;
+            notifyIcon.MouseClick += ShowNotifyIconMenu;
+        }
+
+        private static void ImportConfig()
+        {
+            using (StreamReader reader = new StreamReader(jsonPath))
+            {
+                string jsonText = reader.ReadToEnd();
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+                launcherCategories = serializer.Deserialize<List<Category>>(jsonText);
+            }
+        }
+
+        private static void ParseArguments(string[] args)
+        {
+            for (int i = 0; i < args.Length - 1; i++)
+            {
+                string flag = args[i];
+                string path = args[i + 1];
+
+                if (!File.Exists(path))
+                {
+                    continue;
+                }
+                else if (flag.Equals("-json", StringComparison.OrdinalIgnoreCase))
+                {
+                    jsonPath = path;
+                }
+                else if (flag.Equals("-icon", StringComparison.OrdinalIgnoreCase))
+                {
+                    trayIcon = new Icon(path);
                 }
             }
         }
@@ -220,22 +211,60 @@ namespace Launcher
             }
         }
 
-        private static void ExitMenuItem_Click(object sender, EventArgs e)
+        private static void EditConfig(object sender, EventArgs e)
+        {
+            try
+            {
+                // JSONファイルをデフォルトのテキストエディタで開く
+                Process.Start(jsonPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Failed to open JSON file: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private static void ExitApp(object sender, EventArgs e)
         {
             notifyIcon.Visible = false;
             Application.Exit();
         }
 
-        // functions.
-
-        private static string GetConfigPath()
+        private static void ShowNotifyIconMenu(object sender, MouseEventArgs e)
         {
-            string exePath = Assembly.GetExecutingAssembly().Location;
-            string exeDir = Path.GetDirectoryName(exePath);
-            string filePath = Path.Combine(exeDir, "QuickLauncher.json");
-            return filePath;
+            if (e.Button == MouseButtons.Left)
+            {
+                notifyIcon.ContextMenuStrip = CreateDefaultItems();
+            }
+            else
+            {
+                notifyIcon.ContextMenuStrip = CreateMenuItems();
+            }
+
+            MethodInfo methodInfo = typeof(NotifyIcon).GetMethod(
+                "ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
+            methodInfo.Invoke(notifyIcon, null);
         }
-        
+
+        private static void UpdateMenuItems(object sender, EventArgs e)
+        {
+            try
+            {
+                ImportConfig(); // JSONファイルを読み直す
+                CreateMenuItems(); // メニューアイテムを作成し直す
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Failed to update menu items: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // structures.
+
         private static Icon GetSelfIcon()
         {
             Assembly assembly = Assembly.GetEntryAssembly();
@@ -255,14 +284,42 @@ namespace Launcher
                 ref info,
                 (uint)Marshal.SizeOf(info),
                 INFO_ICON | INFO_SMALLICON | INFO_USEFILEATTRIBUTES);
-            
+
             if (hImg != IntPtr.Zero)
                 return Icon.FromHandle(info.hIcon);
             else
                 return null;
         }
 
-        // structures
+        private static ContextMenuStrip CreateDefaultItems()
+        {
+            ContextMenuStrip menu = new ContextMenuStrip();
+            menu.Items.Add("Update", null, UpdateMenuItems);
+            menu.Items.Add("Edit", null, EditConfig);
+            menu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add("Exit", null, ExitApp);
+            return menu;
+        }
+
+        private static ContextMenuStrip CreateMenuItems()
+        {
+            ContextMenuStrip menu = new ContextMenuStrip();
+
+            foreach (var category in launcherCategories)
+            {
+                if (!string.IsNullOrEmpty(category.Name))
+                {
+                    var categoryMenuItem = new ToolStripMenuItem(category.Name);
+                    menu.Items.Add(categoryMenuItem);
+                    AddMenuItems(categoryMenuItem.DropDownItems, category.Softwares);
+                }
+                else
+                {
+                    AddMenuItems(menu.Items, category.Softwares);
+                }
+            }
+            return menu;
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         private struct SHFILEINFO

@@ -13,7 +13,6 @@ Windows10以降にプリインストールされてるライブラリのみで�
 ファイルサイズが20KBと、極端に小さいのも特徴です。
 
 <img src="./docs/tasktray_sampleA.png">
-<img src="./docs/tasktray_sampleB.png">
 
 ## 特徴
 
@@ -38,6 +37,27 @@ https://github.com/unitbus/QuickLauncher
 https://github.com/unitbus/QuickLauncher/blob/main/LICENSE.txt
 
 Copyright (C) 2023 Co, UnitBus.
+
+
+# 使い方
+
+`QuickLauncher.exe`を実行すると起動し、タスクトレイに滞在します。
+
+## システムメニュー
+
+<img src="./docs/tasktray_sampleB.png">
+
+左クリックするとシステムメニューが表示されます(v0.1.2から)。
+アプリケーションを終了したい場合は`Exit`を押すとタスクトレイから消えます。
+
+`Edit`を押すと、OSに関連付けされたアプリケーションで設定ファイルのJSONを開きます。
+`Update`を押すと、JSONファイルを再読み込みし、メニューを更新します。
+
+## ユーザーメニュー
+
+右クリックをすると、JSONファイルから作成したメニューが表示されます。
+ダウンロードした状態だと、メニューアイテムにサンプルが登録されています。
+好みに合わせて追加、編集してください。
 
 
 # コマンドラインオプション
