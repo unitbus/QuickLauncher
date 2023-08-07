@@ -17,17 +17,24 @@ namespace Launcher
         public string Name { get; set; }
         public List<Software> Softwares { get; set; }
     }
-    
+
     public class Software
     {
-        public bool Separator { get; set; }
         public string Name { get; set; }
         public string Path { get; set; }
         public string Icon { get; set; }
         public string Arguments { get; set; }
         public Dictionary<string, object> Environments { get; set; }
+        public bool Separator { get; set; }
+
+        private bool visible = true;
+        public bool Visible
+        {
+            get { return visible; }
+            set { visible = value; }
+        }
     }
-    
+
     public class Program
     {
         private const uint INFO_ICON = 0x000000100;
@@ -62,6 +69,10 @@ namespace Launcher
         {
             foreach (var software in softwares)
             {
+                if (!software.Visible)
+                {
+                    continue;
+                }
                 if (software.Separator)
                 {
                     collection.Add(new ToolStripSeparator());
@@ -69,8 +80,6 @@ namespace Launcher
                 else
                 {
                     var menuItem = new ToolStripMenuItem(software.Name);
-
-                    // 環境変数を展開したパスを使用する
                     string expandedPath = Environment.ExpandEnvironmentVariables(software.Path);
 
                     if (Directory.Exists(expandedPath))
@@ -215,7 +224,6 @@ namespace Launcher
         {
             try
             {
-                // JSONファイルをデフォルトのテキストエディタで開く
                 Process.Start(jsonPath);
             }
             catch (Exception ex)
@@ -252,8 +260,8 @@ namespace Launcher
         {
             try
             {
-                ImportConfig(); // JSONファイルを読み直す
-                CreateMenuItems(); // メニューアイテムを作成し直す
+                ImportConfig();
+                CreateMenuItems();
             }
             catch (Exception ex)
             {
