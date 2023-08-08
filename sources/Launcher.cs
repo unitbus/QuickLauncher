@@ -42,9 +42,20 @@ namespace Launcher
         private const uint INFO_USEFILEATTRIBUTES = 0x000000010;
         private const uint FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
         private static NotifyIcon notifyIcon;
+        private static ContextMenuStrip contextMenuL;
+        private static ContextMenuStrip contextMenuR;
         private static List<Category> launcherCategories;
         private static Icon trayIcon;
         private static string jsonPath;
+
+        [DllImport("shell32.dll")]
+        private static extern IntPtr SHGetFileInfo(
+            string pszPath,
+            uint dwFileAttributes,
+            ref SHFILEINFO info,
+            uint cbSizeFileInfo,
+            uint uFlags
+        );
 
         [STAThread]
         public static void Main(string[] args)
@@ -54,13 +65,91 @@ namespace Launcher
 
             trayIcon = GetSelfIcon();
             jsonPath = GetConfigPath();
+            contextMenuL = CreateSystemMenuItems();
 
             ParseArguments(args);
             InitNotifyIcon();
-            ImportConfig();
-            CreateDefaultItems();
+            UpdateUserMenuItems();
 
             Application.Run();
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct SHFILEINFO
+        {
+            public IntPtr hIcon;
+            public int iIcon;
+            public uint dwAttributes;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+            public string szDisplayName;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
+            public string szTypeName;
+        }
+
+        // objects.
+
+        private static string GetConfigPath()
+        {
+            string exePath = Assembly.GetExecutingAssembly().Location;
+            string exeDir = Path.GetDirectoryName(exePath);
+            string filePath = Path.Combine(exeDir, "QuickLauncher.json");
+            return filePath;
+        }
+
+        private static Icon GetSelfIcon()
+        {
+            Assembly assembly = Assembly.GetEntryAssembly();
+            if (assembly != null)
+            {
+                return Icon.ExtractAssociatedIcon(assembly.Location);
+            }
+            return null;
+        }
+
+        private static Icon GetFolderIcon(string folderPath)
+        {
+            SHFILEINFO info = new SHFILEINFO();
+            IntPtr hImg = SHGetFileInfo(
+                folderPath,
+                FILE_ATTRIBUTE_DIRECTORY,
+                ref info,
+                (uint)Marshal.SizeOf(info),
+                INFO_ICON | INFO_SMALLICON | INFO_USEFILEATTRIBUTES);
+
+            if (hImg != IntPtr.Zero)
+                return Icon.FromHandle(info.hIcon);
+            else
+                return null;
+        }
+
+        private static ContextMenuStrip CreateSystemMenuItems()
+        {
+            ContextMenuStrip menu = new ContextMenuStrip();
+            menu.Items.Add("Update", null, UpdateClicked);
+            menu.Items.Add("Edit", null, EditConfig);
+            menu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add("Exit", null, ExitApp);
+            return menu;
+        }
+
+        private static ContextMenuStrip CreateUserMenuItems()
+        {
+            ContextMenuStrip menu = new ContextMenuStrip();
+
+            foreach (var category in launcherCategories)
+            {
+                if (!string.IsNullOrEmpty(category.Name))
+                {
+                    var categoryMenuItem = new ToolStripMenuItem(category.Name);
+                    menu.Items.Add(categoryMenuItem);
+                    AddMenuItems(categoryMenuItem.DropDownItems, category.Softwares);
+                }
+                else
+                {
+                    AddMenuItems(menu.Items, category.Softwares);
+                }
+            }
+            return menu;
         }
 
         // functions.
@@ -111,21 +200,13 @@ namespace Launcher
             }
         }
 
-        private static string GetConfigPath()
-        {
-            string exePath = Assembly.GetExecutingAssembly().Location;
-            string exeDir = Path.GetDirectoryName(exePath);
-            string filePath = Path.Combine(exeDir, "QuickLauncher.json");
-            return filePath;
-        }
-
         private static void InitNotifyIcon()
         {
             notifyIcon = new NotifyIcon();
             notifyIcon.Icon = trayIcon;
             notifyIcon.Text = "Quick Launcher";
             notifyIcon.Visible = true;
-            notifyIcon.MouseClick += ShowNotifyIconMenu;
+            notifyIcon.MouseClick += NotifyClicked;
         }
 
         private static void ImportConfig()
@@ -160,20 +241,41 @@ namespace Launcher
             }
         }
 
-        // slots.
-
-        private static void OpenFolder(string folderPath)
+        private static void UpdateUserMenuItems()
         {
             try
             {
-                Process.Start("explorer.exe", folderPath);
+                ImportConfig();
+                contextMenuR = CreateUserMenuItems();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Failed to open folder: " + ex.Message,
+                    "Failed to update menu items: " + ex.Message,
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        // slots.
+
+        private static void EditConfig(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(jsonPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Failed to open JSON file: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private static void ExitApp(object sender, EventArgs e)
+        {
+            notifyIcon.Visible = false;
+            Application.Exit();
         }
 
         private static void LaunchSoftware(string path, string arguments, Dictionary<string, object> environments)
@@ -220,35 +322,15 @@ namespace Launcher
             }
         }
 
-        private static void EditConfig(object sender, EventArgs e)
-        {
-            try
-            {
-                Process.Start(jsonPath);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    "Failed to open JSON file: " + ex.Message,
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private static void ExitApp(object sender, EventArgs e)
-        {
-            notifyIcon.Visible = false;
-            Application.Exit();
-        }
-
-        private static void ShowNotifyIconMenu(object sender, MouseEventArgs e)
+        private static void NotifyClicked(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                notifyIcon.ContextMenuStrip = CreateDefaultItems();
+                notifyIcon.ContextMenuStrip = contextMenuL;
             }
             else
             {
-                notifyIcon.ContextMenuStrip = CreateMenuItems();
+                notifyIcon.ContextMenuStrip = contextMenuR;
             }
 
             MethodInfo methodInfo = typeof(NotifyIcon).GetMethod(
@@ -256,99 +338,24 @@ namespace Launcher
             methodInfo.Invoke(notifyIcon, null);
         }
 
-        private static void UpdateMenuItems(object sender, EventArgs e)
+        private static void OpenFolder(string folderPath)
         {
             try
             {
-                ImportConfig();
-                CreateMenuItems();
+                Process.Start("explorer.exe", folderPath);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Failed to update menu items: " + ex.Message,
+                    "Failed to open folder: " + ex.Message,
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // structures.
-
-        private static Icon GetSelfIcon()
+        private static void UpdateClicked(object sender, EventArgs e)
         {
-            Assembly assembly = Assembly.GetEntryAssembly();
-            if (assembly != null)
-            {
-                return Icon.ExtractAssociatedIcon(assembly.Location);
-            }
-            return null;
+            UpdateUserMenuItems();
         }
-
-        private static Icon GetFolderIcon(string folderPath)
-        {
-            SHFILEINFO info = new SHFILEINFO();
-            IntPtr hImg = SHGetFileInfo(
-                folderPath,
-                FILE_ATTRIBUTE_DIRECTORY,
-                ref info,
-                (uint)Marshal.SizeOf(info),
-                INFO_ICON | INFO_SMALLICON | INFO_USEFILEATTRIBUTES);
-
-            if (hImg != IntPtr.Zero)
-                return Icon.FromHandle(info.hIcon);
-            else
-                return null;
-        }
-
-        private static ContextMenuStrip CreateDefaultItems()
-        {
-            ContextMenuStrip menu = new ContextMenuStrip();
-            menu.Items.Add("Update", null, UpdateMenuItems);
-            menu.Items.Add("Edit", null, EditConfig);
-            menu.Items.Add(new ToolStripSeparator());
-            menu.Items.Add("Exit", null, ExitApp);
-            return menu;
-        }
-
-        private static ContextMenuStrip CreateMenuItems()
-        {
-            ContextMenuStrip menu = new ContextMenuStrip();
-
-            foreach (var category in launcherCategories)
-            {
-                if (!string.IsNullOrEmpty(category.Name))
-                {
-                    var categoryMenuItem = new ToolStripMenuItem(category.Name);
-                    menu.Items.Add(categoryMenuItem);
-                    AddMenuItems(categoryMenuItem.DropDownItems, category.Softwares);
-                }
-                else
-                {
-                    AddMenuItems(menu.Items, category.Softwares);
-                }
-            }
-            return menu;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct SHFILEINFO
-        {
-            public IntPtr hIcon;
-            public int iIcon;
-            public uint dwAttributes;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-            public string szDisplayName;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
-            public string szTypeName;
-        }
-
-        [DllImport("shell32.dll")]
-        private static extern IntPtr SHGetFileInfo(
-            string pszPath,
-            uint dwFileAttributes,
-            ref SHFILEINFO info,
-            uint cbSizeFileInfo,
-            uint uFlags
-        );
 
     }
 }
