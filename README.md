@@ -16,27 +16,15 @@ Windows10以降にプリインストールされてるライブラリのみで�
 
 ## 特徴
 
-- カスタマイズが容易(テキストエディタで出来る)
-- タスクトレイで表示するアイコンが変更出来る
-- ネットワークに設定ファイルを置く事で共有出来る
-- 複数起動し、別の設定ファイルを指定出来る
-- ファイルサイズ小さい
+- カスタマイズが容易(テキストエディタで編集可能)
+- タスクトレイで表示するアイコンが変更可能
+- ネットワークに設定ファイルを置く事で共有可能
+- 複数起動が可能で、別々の設定ファイルを指定可能
+- ファイルサイズが小さい
 
-## URL
-
-### HomePage
-
-https://unitbus.github.io/index
-
-### QuickLauncher - GitHub
-
-https://github.com/unitbus/QuickLauncher
-
-### License
+## License
 
 https://github.com/unitbus/QuickLauncher/blob/main/LICENSE.txt
-
-Copyright (C) 2023 Co, UnitBus.
 
 
 # 使い方
@@ -78,6 +66,12 @@ QuickLauncher.exe -json ".\samples\sample.json" -icon ".\samples\sample.ico"
 
 タスクトレイで表示するアイコンが変更されます。
 複数起動した際に、見た目で違いが分かるようになります。
+
+## ショートカットの利用
+
+起動用のバッチファイルなど用意してもいいですが、気軽に使いたい場合は、
+ウインドウズのショートカット作成し、ここに入力して使うと便利です。
+<img src="./docs/shortcut_property.png">
 
 
 # 設定ファイル
@@ -136,7 +130,7 @@ JSONファイルの不正な記述を指摘してくれます。
                         "X:\\inhouse\\packageA",
                         "X:\\inhouse\\packageB",
                         "Y:\\test\\package"
-                    ]  // X:\inhouse\packageA;X:\inhouse\packageB;Y:\test\package
+                    ]
                 }
             }
         ]
@@ -254,3 +248,16 @@ JSONではコメントアウトが出来ないので、一時的に非表示し�
     }
 ]
 ```
+
+# Link
+
+## HomePage
+
+https://unitbus.github.io/index
+
+## QuickLauncher - GitHub
+
+https://github.com/unitbus/QuickLauncher
+
+
+<div style="text-align: right;">Copyright (C) 2023 Co, UnitBus.</div>
