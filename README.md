@@ -205,12 +205,14 @@ EXEに埋め込まれてるアイコンを使いたい場合は、EXEのパス�
 
 ## セパレーター
 
-`softwares`の項目の中で使用してください。
+メニューアイテムの仕切りとして使用出来ます。
+`separator`が指定されてる場合、`Visible`以外のアトリビュートはすべて無視されます。
+カテゴリと、ソフトウェアの項目で使用可能です。
 
 ```json
 [
     {
-        "name": "カテゴリ名",
+        "name": "カテゴリA",
         "softwares": [
             {
                 // Software A
@@ -223,21 +225,29 @@ EXEに埋め込まれてるアイコンを使いたい場合は、EXEのパス�
             }
         ]
     }
+    {
+        "separator": true
+    },
+    {
+        "name": "カテゴリB",
+        "softwares": []
+    }
 ]
 ```
 
 ## 非表示
 
 JSONではコメントアウトが出来ないので、一時的に非表示したい時に使用してください。
+カテゴリと、ソフトウェアの項目で使用可能です。
 
 ```json
 [
     {
         "name": "カテゴリ名",
+        "visible": false,
         "softwares": [
             {
-                "separator": true,
-                "visible": false
+                "separator": true
             },
             {
                 "name": "インストールディレクトリ",

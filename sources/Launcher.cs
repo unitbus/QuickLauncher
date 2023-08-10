@@ -16,6 +16,14 @@ namespace Launcher
     {
         public string Name { get; set; }
         public List<Software> Softwares { get; set; }
+        public bool Separator { get; set; }
+
+        private bool visible = true;
+        public bool Visible
+        {
+            get { return visible; }
+            set { visible = value; }
+        }
     }
 
     public class Software
@@ -138,7 +146,15 @@ namespace Launcher
 
             foreach (var category in launcherCategories)
             {
-                if (!string.IsNullOrEmpty(category.Name))
+                if (!category.Visible)
+                {
+                    continue;
+                }
+                if (category.Separator)
+                {
+                    menu.Items.Add(new ToolStripSeparator());
+                }
+                else if (!string.IsNullOrEmpty(category.Name))
                 {
                     var categoryMenuItem = new ToolStripMenuItem(category.Name);
                     menu.Items.Add(categoryMenuItem);
