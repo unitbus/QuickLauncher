@@ -7,7 +7,9 @@
                 "path": "C:\\tools\\Notepad++\\notepad++.exe",
                 "icon": "C:\\tools\\Notepad++\\notepad++.exe",
                 "arguments": "",
-                "environments": {}
+                "environments": {
+                    "TEST_VALUE": "test"
+                }
             }
         ]
     },

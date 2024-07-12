@@ -298,6 +298,13 @@ namespace Launcher
         {
             try
             {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = path,
+                    Arguments = arguments,
+                    UseShellExecute = false
+                };
+                
                 if (environments != null && environments.Count > 0)
                 {
                     foreach (var environment in environments)
@@ -309,24 +316,17 @@ namespace Launcher
                         {
                             string stringValue = (string)value;
                             string expandedValue = Environment.ExpandEnvironmentVariables(stringValue);
-                            Environment.SetEnvironmentVariable(key, expandedValue);
+                            psi.EnvironmentVariables[key] = expandedValue;
                         }
                         else if (value is System.Collections.ArrayList)
                         {
                             System.Collections.ArrayList arrayValue = (System.Collections.ArrayList)value;
                             string joinedValue = string.Join(";", arrayValue.ToArray());
                             string expandedValue = Environment.ExpandEnvironmentVariables(joinedValue);
-                            Environment.SetEnvironmentVariable(key, expandedValue);
+                            psi.EnvironmentVariables[key] = expandedValue;
                         }
                     }
                 }
-
-                ProcessStartInfo psi = new ProcessStartInfo
-                {
-                    FileName = path,
-                    Arguments = arguments,
-                    UseShellExecute = true
-                };
 
                 Process.Start(psi);
             }
